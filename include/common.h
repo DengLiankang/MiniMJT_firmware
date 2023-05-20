@@ -6,6 +6,7 @@
 #include "driver/imu.h"
 #include "driver/network.h"
 #include "driver/sd_card.h"
+#include "driver/flash_fs.h"
 #include <TFT_eSPI.h>
 
 #define MJT_VERSION "2.1.13"
@@ -50,6 +51,7 @@ struct SysUtilConfig {
     struct ImuOffsetConfig imuOffsets;
 };
 
+extern FlashFs g_flashFs; // flash中的文件系统
 extern SdCard g_tfCard;
 extern TFT_eSPI *tft;
 extern SemaphoreHandle_t lvgl_mutex; // lvgl 操作的锁

@@ -3,24 +3,25 @@
 #include "driver/lv_demo_encoder.h"
 #include "driver/lv_port_indev.h"
 
-#define LV_HOR_RES_MAX_LEN 80 // 24
+#define LV_HOR_RES_MAX_LEN 40 // 24
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
-static lv_color_t buf[SCREEN_HOR_RES * LV_HOR_RES_MAX_LEN];
+static lv_color_t buf1[SCREEN_HOR_RES * LV_HOR_RES_MAX_LEN];
+static lv_color_t buf2[SCREEN_HOR_RES * LV_HOR_RES_MAX_LEN];
 
 void minimjt_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
 
-    tft->setAddrWindow(area->x1, area->y1, w, h);
-    tft->startWrite();
+    // tft->setAddrWindow(area->x1, area->y1, w, h);
+    // tft->startWrite();
     // tft->writePixels(&color_p->full, w * h);
-    tft->pushColors(&color_p->full, w * h, true);
-    tft->endWrite();
+    // tft->pushColors(&color_p->full, w * h, true);
+    // tft->endWrite();
     // Initiate DMA - blocking only if last DMA is not complete
-    // tft->pushImageDMA(area->x1, area->y1, w, h, bitmap, &color_p->full);
+    tft->pushImageDMA(area->x1, area->y1, w, h, &color_p->full);
 
     lv_disp_flush_ready(disp);
 }
@@ -35,6 +36,7 @@ void Display::init(uint8_t rotation, uint8_t backlight)
     setBackLight(0.0); // 设置亮度 为了先不显示初始化时的"花屏"
 
     tft->begin(); /* TFT init */
+    tft->initDMA();
     tft->fillScreen(TFT_BLACK);
     tft->writecommand(ST7789_DISPON); // Display on
     // tft->fillScreen(BLACK);
@@ -49,7 +51,7 @@ void Display::init(uint8_t rotation, uint8_t backlight)
 
     setBackLight(backlight / 100.0); // 设置亮度
 
-    lv_disp_draw_buf_init(&disp_buf, buf, NULL, SCREEN_HOR_RES * LV_HOR_RES_MAX_LEN);
+    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, SCREEN_HOR_RES * LV_HOR_RES_MAX_LEN);
 
     /*Initialize the display*/
     lv_disp_drv_init(&disp_drv);

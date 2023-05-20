@@ -20,6 +20,10 @@ void setup()
     Serial.println(ESP.getEfuseMac());
     Serial.flush();
 
+#if LV_USE_LOG
+    lv_log_register_print_cb(LvglLog);
+#endif /*LV_USE_LOG*/
+
     g_appController = new AppController(); // APP控制器
 
     g_appController->Init();
@@ -60,10 +64,6 @@ void setup()
 
     // 自启动APP
     g_appController->AppAutoStart();
-
-#if LV_USE_LOG
-    lv_log_register_print_cb(LvglLog);
-#endif /*LV_USE_LOG*/
 }
 
 void loop()

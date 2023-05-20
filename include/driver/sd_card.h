@@ -38,8 +38,6 @@ public:
 
     File_Info *ListDir(const char *dirName);
 
-    bool CardIsExist(void);
-
 private:
     SPIClass *m_spi;
 };

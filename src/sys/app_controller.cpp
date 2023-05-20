@@ -254,6 +254,9 @@ AppController::~AppController() {}
 
 void AppController::Init(void)
 {
+    // FlashFs init first
+    g_flashFs.Init();
+
     /*** Init micro SD-Card ***/
     g_tfCard.Init();
     this->ReadConfig(&m_sysCfg);
@@ -277,13 +280,6 @@ void AppController::Init(void)
 
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingGuiInit());
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingDisplay(10, NULL, true));
-
-    if (g_tfCard.CardIsExist() == false) {
-        MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingDisplay(20, "#ff0000 " LV_SYMBOL_WARNING "# no sdcard!", true));
-        while (1) {
-            delay(1000);
-        }
-    }
 
     /*** Init IMU as input device ***/
     // lv_port_indev_init();
@@ -364,12 +360,6 @@ void AppController::MainProcess(void)
 
     if (unlikely(GetSystemState() == MJT_SYS_STATE::STATE_SYS_LOADING)) {
         delay(1);
-        return;
-    }
-
-    if (unlikely(g_tfCard.CardIsExist() == false)) {
-        delay(500);
-        Serial.println(F("Card Plug Out"));
         return;
     }
 

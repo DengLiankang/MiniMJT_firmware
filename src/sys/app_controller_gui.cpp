@@ -119,11 +119,12 @@ void AppCtrlMenuDisplay(const char *appName, lv_scr_load_anim_t anim, bool delPr
 {
     String appNameStr(appName);
     appNameStr.toLowerCase();
-    String appIconPath = LV_FS_FATFS_LETTER + ":/system/" + appNameStr + "/logo.bin";
+    String appIconPath = "/.system/" + appNameStr + "/logo.bin";
     if (g_tfCard.FileExists(appIconPath.c_str()) == true) {
+        appIconPath = "S:" + appIconPath;
         lv_img_set_src(g_nextMenuPage->appImg, appIconPath.c_str());
-    }
-    else {
+    } else {
+        Serial.printf("[WARN][APP_CTRL]%s logo bin not found! use default logo\n", appName);
         lv_img_set_src(g_nextMenuPage->appImg, &default_app_icon);
     }
     lv_label_set_text(g_nextMenuPage->appName, appName);

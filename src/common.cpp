@@ -1,5 +1,6 @@
 #include "common.h"
 
+FlashFs g_flashFs; // flash中的文件系统
 SdCard g_tfCard;
 TFT_eSPI *tft;
 TaskHandle_t gTaskLvglHandle;
@@ -90,7 +91,7 @@ void ToString(SysUtilConfig *cfg, String &result)
     result += "\nimuAccelX:" + String(cfg->imuOffsets.imuAccelOffsetX);
     result += "\nimuAccelY:" + String(cfg->imuOffsets.imuAccelOffsetY);
     result += "\nimuAccelZ:" + String(cfg->imuOffsets.imuAccelOffsetZ);
-    Serial.println(result);
+    // Serial.println(result);
 }
 
 void fromString(const char *cfgStr, SysUtilConfig *cfg)
@@ -114,6 +115,4 @@ void fromString(const char *cfgStr, SysUtilConfig *cfg)
     cfg->imuOffsets.imuAccelOffsetX = SplitCfgString(tmpStr).toInt();
     cfg->imuOffsets.imuAccelOffsetY = SplitCfgString(tmpStr).toInt();
     cfg->imuOffsets.imuAccelOffsetZ = SplitCfgString(tmpStr).toInt();
-    ToString(cfg, tmpStr);
-    Serial.println(tmpStr);
 }

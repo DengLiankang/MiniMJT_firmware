@@ -180,10 +180,3 @@ File_Info *SdCard::ListDir(const char *dirName)
     }
     return head_file;
 }
-
-bool SdCard::CardIsExist(void) {
-    if (digitalRead(SD_SS) == LOW) {
-        return false;
-    }
-    return true;
-}
