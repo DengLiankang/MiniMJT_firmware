@@ -221,5 +221,5 @@ static void PictureAppMessageHandle(const char *from, const char *to, APP_MESSAG
     }
 }
 
-APP_OBJ PICTURE_APP = {PICTURE_APP_NAME,       "", PictureAppInit, PictureAppMainPorcess, NULL, PictureAppExit,
-                       PictureAppMessageHandle};
+APP_OBJ PICTURE_APP = {PICTURE_APP_NAME, &PictureAppLogo,        "", PictureAppInit, PictureAppMainPorcess, NULL,
+                       PictureAppExit,   PictureAppMessageHandle};

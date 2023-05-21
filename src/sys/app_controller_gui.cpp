@@ -13,7 +13,6 @@ static struct AppCtrlMenuPage g_appMenuPage2;
 static struct AppCtrlMenuPage *g_nextMenuPage;
 
 LV_IMG_DECLARE(minimjt_logo);
-LV_IMG_DECLARE(default_app_icon);
 LV_FONT_DECLARE(lv_font_montserrat_24);
 
 void AppCtrlLoadingGuiInit(void)
@@ -115,18 +114,9 @@ void AppCtrlMenuGuiInit(void)
     g_nextMenuPage = &g_appMenuPage1;
 }
 
-void AppCtrlMenuDisplay(const char *appName, lv_scr_load_anim_t anim, bool delPre)
+void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim, bool delPre)
 {
-    String appNameStr(appName);
-    appNameStr.toLowerCase();
-    String appIconPath = "/.system/" + appNameStr + "/logo.bin";
-    if (g_tfCard.FileExists(appIconPath.c_str()) == true) {
-        appIconPath = "S:" + appIconPath;
-        lv_img_set_src(g_nextMenuPage->appImg, appIconPath.c_str());
-    } else {
-        Serial.printf("[WARN][APP_CTRL]%s logo bin not found! use default logo\n", appName);
-        lv_img_set_src(g_nextMenuPage->appImg, &default_app_icon);
-    }
+    lv_img_set_src(g_nextMenuPage->appImg, appImg);
     lv_label_set_text(g_nextMenuPage->appName, appName);
 
     lv_scr_load_anim(g_nextMenuPage->appMenuScr, anim, 500, 500, delPre);

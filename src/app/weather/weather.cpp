@@ -376,5 +376,5 @@ static void WeatherAppMessageHandle(const char *from, const char *to, APP_MESSAG
     }
 }
 
-APP_OBJ WEATHER_APP = {WEATHER_APP_NAME,       "", WeatherAppInit, WeatherAppMainProcess, NULL, WeatherAppExit,
-                       WeatherAppMessageHandle};
+APP_OBJ WEATHER_APP = {WEATHER_APP_NAME, &WeatherAppLogo,        "", WeatherAppInit, WeatherAppMainProcess, NULL,
+                       WeatherAppExit,   WeatherAppMessageHandle};

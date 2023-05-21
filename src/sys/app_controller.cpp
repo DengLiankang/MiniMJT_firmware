@@ -302,7 +302,8 @@ void AppController::ExitLoadingGui(void)
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingDisplay(100, "finished.", true));
     DeleteLvglTask();
     MJT_LVGL_OPERATE_LOCK(AppCtrlMenuGuiInit());
-    MJT_LVGL_OPERATE_LOCK(AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appName, LV_SCR_LOAD_ANIM_FADE_IN, true));
+    MJT_LVGL_OPERATE_LOCK(AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
+                                             LV_SCR_LOAD_ANIM_FADE_IN, true));
 
     SetSystemState(STATE_APP_MENU);
 }
@@ -379,11 +380,13 @@ void AppController::MainProcess(void)
 
         if (m_imuActionData->active == ACTIVE_TYPE::TURN_LEFT) {
             m_currentAppItem = (m_currentAppItem + 1) % m_appNum;
-            AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appName, LV_SCR_LOAD_ANIM_MOVE_LEFT, false);
+            AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
+                               LV_SCR_LOAD_ANIM_MOVE_LEFT, false);
             Serial.println(String("Current App: ") + m_appList[m_currentAppItem]->appName);
         } else if (m_imuActionData->active == ACTIVE_TYPE::TURN_RIGHT) {
             m_currentAppItem = (m_currentAppItem + m_appNum - 1) % m_appNum;
-            AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appName, LV_SCR_LOAD_ANIM_MOVE_RIGHT, false);
+            AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
+                               LV_SCR_LOAD_ANIM_MOVE_RIGHT, false);
             Serial.println(String("Current App: ") + m_appList[m_currentAppItem]->appName);
         } else if (m_imuActionData->active == ACTIVE_TYPE::GO_FORWORD) {
             if (m_appList[m_currentAppItem]->AppInit != NULL) {
@@ -423,7 +426,8 @@ int AppController::GetAppIndexByName(const char *name)
 void AppController::AppExit(void)
 {
     lv_anim_del_all();
-    AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appName, LV_SCR_LOAD_ANIM_FADE_IN, false);
+    AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
+                       LV_SCR_LOAD_ANIM_FADE_IN, false);
 
     if (NULL != m_appList[m_currentAppItem]->AppExit) {
         // 执行APP退出回调

@@ -48,7 +48,7 @@
 #endif
 
 // 相册APP
-#define APP_PICTURE_USE 0
+#define APP_PICTURE_USE 1
 #if APP_PICTURE_USE
 #include "app/picture/picture.h"
 #endif

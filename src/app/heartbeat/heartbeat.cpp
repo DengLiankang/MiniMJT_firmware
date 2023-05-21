@@ -393,10 +393,6 @@ static void heartbeat_message_handle(const char *from, const char *to, APP_MESSA
     }
 }
 
-APP_OBJ heartbeat_app = {HEARTBEAT_APP_NAME,
-                         "Author WoodwindHu\nVersion 2.0.0\n",
-                         heartbeat_init,
-                         heartbeat_process,
-                         heartbeat_background_task,
-                         heartbeat_exit_callback,
-                         heartbeat_message_handle};
+APP_OBJ heartbeat_app = {HEARTBEAT_APP_NAME,      &app_heartbeat,          "Author WoodwindHu\nVersion 2.0.0\n",
+                         heartbeat_init,          heartbeat_process,       heartbeat_background_task,
+                         heartbeat_exit_callback, heartbeat_message_handle};

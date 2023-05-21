@@ -21,6 +21,6 @@ struct AppCtrlMenuPage {
 void AppCtrlMenuGuiInit(void);
 void AppCtrlLoadingGuiInit(void);
 void AppCtrlLoadingDisplay(int progress, const char *text, bool wait);
-void AppCtrlMenuDisplay(const char *appName, lv_scr_load_anim_t anim, bool delPre);
+void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim, bool delPre);
 
 #endif

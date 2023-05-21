@@ -41,4 +41,6 @@ void DisplaySpaceMan(void);
 void DisplayCurve(short maxT[], short minT[]);
 void WeatherAppGuiRelease(void);
 
+LV_IMG_DECLARE(WeatherAppLogo);
+
 #endif

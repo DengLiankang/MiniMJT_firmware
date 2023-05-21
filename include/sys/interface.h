@@ -3,15 +3,15 @@
 
 enum APP_MESSAGE_TYPE {
     APP_MESSAGE_WIFI_CONNECT = 0, // 开启连接
-    APP_MESSAGE_WIFI_CONNECTED, // 连接成功
-    APP_MESSAGE_WIFI_AP_START,       // 开启AP事件
-    APP_MESSAGE_WIFI_KEEP_ALIVE,    // wifi开关的心跳维持
+    APP_MESSAGE_WIFI_CONNECTED,   // 连接成功
+    APP_MESSAGE_WIFI_AP_START,    // 开启AP事件
+    APP_MESSAGE_WIFI_KEEP_ALIVE,  // wifi开关的心跳维持
     APP_MESSAGE_WIFI_DISCONNECT,  // 连接断开
-    APP_MESSAGE_MQTT_DATA, // MQTT客户端收到消息
-    APP_MESSAGE_GET_PARAM, // 获取参数
-    APP_MESSAGE_SET_PARAM, // 设置参数
-    APP_MESSAGE_READ_CFG,  // 向磁盘读取参数
-    APP_MESSAGE_WRITE_CFG, // 向磁盘写入参数
+    APP_MESSAGE_MQTT_DATA,        // MQTT客户端收到消息
+    APP_MESSAGE_GET_PARAM,        // 获取参数
+    APP_MESSAGE_SET_PARAM,        // 设置参数
+    APP_MESSAGE_READ_CFG,         // 向磁盘读取参数
+    APP_MESSAGE_WRITE_CFG,        // 向磁盘写入参数
 
     APP_MESSAGE_NONE,
 };
@@ -40,6 +40,9 @@ struct ImuAction;
 struct APP_OBJ {
     // 应用程序名称 及title
     const char *appName;
+
+    // APP的图片存放地址    APP应用图标 128*128
+    const void *appLogo;
 
     // 应用程序的其他信息 如作者、版本号等等
     const char *appDesc;
