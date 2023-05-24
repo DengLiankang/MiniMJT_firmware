@@ -9,7 +9,7 @@
 #include "driver/flash_fs.h"
 #include <TFT_eSPI.h>
 
-#define MJT_VERSION "2.1.13"
+#define MJT_VERSION "2.1.15"
 
 #define MJT_APP_CTRL "MJT_AppCtrl"
 
@@ -64,6 +64,12 @@ extern SemaphoreHandle_t lvgl_mutex; // lvgl 操作的锁
             xSemaphoreGive(lvgl_mutex);                                                                                \
         }                                                                                                              \
     }
+
+#define ANIEND_WAIT                     \
+    do {                                \
+        lv_timer_handler();             \
+        delay(1);                       \
+    } while (lv_anim_count_running())
 
 void InitLvglTaskSetup(const char *name);
 void DeleteLvglTask(void);

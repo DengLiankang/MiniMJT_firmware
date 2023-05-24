@@ -4,38 +4,41 @@ MiniMjtFs::MiniMjtFs() {}
 
 MiniMjtFs::~MiniMjtFs() {}
 
-int8_t MiniMjtFs::ListDir(const char *dirName, uint8_t levels)
+String MiniMjtFs::ListDir(const char *dirName, int8_t levels)
 {
-    FS_IS_NULL(m_fs)
-    Serial.printf("Listing directory: %s\r\n", dirName);
+    if (m_fs == NULL) {
+        Serial.println(F("FS not Mounted"));
+        return "";
+    }
+    String result;
+    result = "Listing directory: " + String(dirName) + "\n";
 
     File root = m_fs->open(dirName);
     if (!root) {
         Serial.println(F("- failed to open directory"));
-        return -1;
+        return "";
     }
     if (!root.isDirectory()) {
         Serial.println(F("- not a directory"));
-        return -1;
+        return "";
     }
 
     File file = root.openNextFile();
     while (file) {
         if (file.isDirectory()) {
-            Serial.print(F("  DIR : "));
-            Serial.println(file.name());
-            if (levels) {
-                ListDir(file.path(), levels - 1);
+            result += " DIR: " + String(file.name()) + "\n";
+            if (levels > 0) {
+                result += ListDir(file.path(), levels - 1);
+            }
+            if (levels == -1) {
+                result += ListDir(file.path(), -1);
             }
         } else {
-            Serial.print(F("  FILE: "));
-            Serial.print(file.name());
-            Serial.print(F("\tSIZE: "));
-            Serial.println(file.size());
+            result += " FILE: " + String(file.name()) + " | SIZE: " + file.size() + "\n";
         }
         file = root.openNextFile();
     }
-    return 0;
+    return result;
 }
 
 int16_t MiniMjtFs::ReadFile(const char *path, uint8_t *info)

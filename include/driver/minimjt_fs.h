@@ -21,7 +21,7 @@ public:
 
     virtual int8_t Init(void) = 0;
 
-    int8_t ListDir(const char *dirName, uint8_t levels);
+    String ListDir(const char *dirName, int8_t levels);
 
     int16_t ReadFile(const char *path, uint8_t *info);
 

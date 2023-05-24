@@ -5,12 +5,6 @@
 #include "lvgl.h"
 #include "common.h"
 
-#define ANIEND_WAIT                     \
-    do {                                \
-        lv_timer_handler();             \
-        delay(1);                       \
-    } while (lv_anim_count_running())
-
 struct WEATHER_STRUCT {
     String weatherCode; // 天气现象代码
     int temperature;  // 温度
