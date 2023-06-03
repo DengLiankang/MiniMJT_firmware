@@ -47,7 +47,7 @@ int16_t ReadConfigFromCard(const char *appName, uint8_t *cfg)
     }
     String appNameStr(appName);
     appNameStr.toLowerCase();
-    String cfgPath = "/" + appNameStr + "/" + appNameStr + ".cfg";
+    String cfgPath = "/.system/" + appNameStr + ".cfg";
     return g_tfCard.ReadFile(cfgPath.c_str(), cfg);
 }
 
@@ -62,7 +62,7 @@ int8_t WriteConfigToCard(const char *appName, const char *cfg)
     }
     String appNameStr(appName);
     appNameStr.toLowerCase();
-    String cfgPath = "/" + appNameStr + "/" + appNameStr + ".cfg";
+    String cfgPath = "/.system/" + appNameStr + ".cfg";
     return g_tfCard.WriteFile(cfgPath.c_str(), cfg);
 }
 

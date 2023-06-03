@@ -273,11 +273,12 @@ void AppController::Init(void)
     Serial.println(getCpuFrequencyMhz());
 
     /*** Init screen ***/
-    tft = new TFT_eSPI(SCREEN_HOR_RES, SCREEN_VER_RES);
+    tft = new TFT_eSPI();
     m_screen.init(m_sysCfg.rotation, m_sysCfg.backlight);
 
     InitLvglTaskSetup("LvglTask");
 
+    MJT_LVGL_OPERATE_LOCK(AppCtrlStyleInit());
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingGuiInit());
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingDisplay(10, NULL, true));
 
@@ -300,11 +301,12 @@ void AppController::ExitLoadingGui(void)
         return;
     }
     MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingDisplay(100, "finished.", true));
+    delay(500);
     DeleteLvglTask();
     MJT_LVGL_OPERATE_LOCK(AppCtrlMenuGuiInit());
     MJT_LVGL_OPERATE_LOCK(AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
-                                             LV_SCR_LOAD_ANIM_FADE_IN, true));
-
+                                             LV_SCR_LOAD_ANIM_FADE_IN));
+    MJT_LVGL_OPERATE_LOCK(AppCtrlLoadingGuiRelease());
     SetSystemState(STATE_APP_MENU);
 }
 
@@ -381,16 +383,18 @@ void AppController::MainProcess(void)
         if (m_imuActionData->active == ACTIVE_TYPE::TURN_LEFT) {
             m_currentAppItem = (m_currentAppItem + 1) % m_appNum;
             AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
-                               LV_SCR_LOAD_ANIM_MOVE_LEFT, false);
+                               LV_SCR_LOAD_ANIM_MOVE_LEFT);
             Serial.println(String("Current App: ") + m_appList[m_currentAppItem]->appName);
         } else if (m_imuActionData->active == ACTIVE_TYPE::TURN_RIGHT) {
             m_currentAppItem = (m_currentAppItem + m_appNum - 1) % m_appNum;
             AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
-                               LV_SCR_LOAD_ANIM_MOVE_RIGHT, false);
+                               LV_SCR_LOAD_ANIM_MOVE_RIGHT);
             Serial.println(String("Current App: ") + m_appList[m_currentAppItem]->appName);
         } else if (m_imuActionData->active == ACTIVE_TYPE::GO_FORWORD) {
             if (m_appList[m_currentAppItem]->AppInit != NULL) {
                 (*(m_appList[m_currentAppItem]->AppInit))(this); // 执行APP初始化
+                ANIEND_WAIT(600);
+                AppCtrlMenuGuiRelease();
                 SetSystemState(MJT_SYS_STATE::STATE_APP_RUNNING);
             }
         }
@@ -425,9 +429,9 @@ int AppController::GetAppIndexByName(const char *name)
 
 void AppController::AppExit(void)
 {
-    lv_anim_del_all();
+    AppCtrlMenuGuiInit();
     AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
-                       LV_SCR_LOAD_ANIM_FADE_IN, false);
+                       LV_SCR_LOAD_ANIM_FADE_IN);
 
     if (NULL != m_appList[m_currentAppItem]->AppExit) {
         // 执行APP退出回调

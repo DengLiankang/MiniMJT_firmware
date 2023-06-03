@@ -2,14 +2,8 @@
 #define APP_CONTROLLER_GUI_H
 
 #include "Arduino.h"
-#include "lvgl.h"
 #include "common.h"
-
-#define ANIEND_WAIT                     \
-    do {                                \
-        lv_timer_handler();             \
-        delay(1);                       \
-    } while (lv_anim_count_running())
+#include "lvgl.h"
 
 struct AppCtrlMenuPage {
     lv_obj_t *appMenuScr;
@@ -18,9 +12,12 @@ struct AppCtrlMenuPage {
     struct AppCtrlMenuPage *nextPage;
 };
 
+void AppCtrlStyleInit(void);
 void AppCtrlMenuGuiInit(void);
+void AppCtrlMenuGuiRelease(void);
 void AppCtrlLoadingGuiInit(void);
+void AppCtrlLoadingGuiRelease(void);
 void AppCtrlLoadingDisplay(int progress, const char *text, bool wait);
-void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim, bool delPre);
+void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim);
 
 #endif

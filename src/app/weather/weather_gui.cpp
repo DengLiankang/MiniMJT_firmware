@@ -236,13 +236,13 @@ void WeatherAppGuiInit(struct WEATHER_STRUCT weatherInfo, struct tm timeInfo)
     lv_obj_align(lv_weatherChartSumLabel, LV_ALIGN_BOTTOM_MID, 0, 0);
 
     // default weather scr
-    lv_scr_load_anim(lv_weatherAppScr1, LV_SCR_LOAD_ANIM_FADE_IN, 500, 500, false);
+    lv_scr_load_anim(lv_weatherAppScr1, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
 }
 
 void WeatherAppGuiRelease(void)
 {
     if (lv_weatherAppScr1 != NULL) {
-        lv_obj_clean(lv_weatherAppScr1);
+        lv_obj_del(lv_weatherAppScr1);
         lv_weatherAppScr1 = NULL;
         lv_weatherIconImg = NULL;
         lv_cityLabel = NULL;
@@ -262,7 +262,7 @@ void WeatherAppGuiRelease(void)
     }
 
     if (lv_weatherAppScr2 != NULL) {
-        lv_obj_clean(lv_weatherAppScr2);
+        lv_obj_del(lv_weatherAppScr2);
         lv_weatherAppScr2 = NULL;
         lv_weatherChart = NULL;
         lv_weatherChartLabel = NULL;
@@ -294,11 +294,11 @@ void WeatherAppGuiPageFlip(lv_scr_load_anim_t anim)
         return;
 
     if (lv_scr_act() == lv_weatherAppScr1) {
-        lv_scr_load_anim(lv_weatherAppScr2, anim, 500, 500, false);
+        lv_scr_load_anim(lv_weatherAppScr2, anim, 500, 0, false);
     } else {
-        lv_scr_load_anim(lv_weatherAppScr1, anim, 500, 500, false);
+        lv_scr_load_anim(lv_weatherAppScr1, anim, 500, 0, false);
     }
-    ANIEND_WAIT;
+    ANIEND_WAIT(600);
 }
 
 enum WEATHER_APP_PAGE GetWeatherAppGuiPage(void)

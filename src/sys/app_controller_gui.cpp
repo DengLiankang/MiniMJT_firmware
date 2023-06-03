@@ -12,25 +12,35 @@ static struct AppCtrlMenuPage g_appMenuPage1;
 static struct AppCtrlMenuPage g_appMenuPage2;
 static struct AppCtrlMenuPage *g_nextMenuPage;
 
+// style
+static lv_style_t gLv_barBoderStyle;
+static lv_style_t gLv_barIndicStyle;
+static lv_style_t gLv_appNameStyle;
+
 LV_IMG_DECLARE(minimjt_logo);
 LV_FONT_DECLARE(lv_font_montserrat_24);
 
+void AppCtrlStyleInit(void)
+{
+    lv_style_init(&gLv_barBoderStyle);
+    lv_style_set_border_color(&gLv_barBoderStyle, lv_palette_main(LV_PALETTE_BLUE));
+    lv_style_set_border_width(&gLv_barBoderStyle, 1);
+    lv_style_set_pad_all(&gLv_barBoderStyle, 4); /*To make the indicator smaller*/
+    lv_style_set_radius(&gLv_barBoderStyle, 3);
+
+    lv_style_init(&gLv_barIndicStyle);
+    lv_style_set_bg_opa(&gLv_barIndicStyle, LV_OPA_COVER);
+    lv_style_set_bg_color(&gLv_barIndicStyle, lv_palette_main(LV_PALETTE_LIGHT_BLUE));
+    lv_style_set_radius(&gLv_barIndicStyle, 3);
+
+    lv_style_init(&gLv_appNameStyle);
+    lv_style_set_text_opa(&gLv_appNameStyle, LV_OPA_COVER);
+    lv_style_set_text_color(&gLv_appNameStyle, lv_color_white());
+    lv_style_set_text_font(&gLv_appNameStyle, &lv_font_montserrat_24);
+}
+
 void AppCtrlLoadingGuiInit(void)
 {
-    static lv_style_t BarBoderStyle;
-    static lv_style_t BarIndicStyle;
-
-    lv_style_init(&BarBoderStyle);
-    lv_style_set_border_color(&BarBoderStyle, lv_palette_main(LV_PALETTE_BLUE));
-    lv_style_set_border_width(&BarBoderStyle, 1);
-    lv_style_set_pad_all(&BarBoderStyle, 4); /*To make the indicator smaller*/
-    lv_style_set_radius(&BarBoderStyle, 3);
-
-    lv_style_init(&BarIndicStyle);
-    lv_style_set_bg_opa(&BarIndicStyle, LV_OPA_COVER);
-    lv_style_set_bg_color(&BarIndicStyle, lv_palette_main(LV_PALETTE_LIGHT_BLUE));
-    lv_style_set_radius(&BarIndicStyle, 3);
-
     gLv_scrLoading = lv_obj_create(NULL);
     lv_obj_set_style_bg_color(gLv_scrLoading, lv_color_black(), LV_STATE_DEFAULT);
     lv_obj_set_size(gLv_scrLoading, 240, 240);
@@ -38,8 +48,8 @@ void AppCtrlLoadingGuiInit(void)
 
     gLv_barLoading = lv_bar_create(gLv_scrLoading);
     lv_obj_remove_style_all(gLv_barLoading); /*To have a clean start*/
-    lv_obj_add_style(gLv_barLoading, &BarBoderStyle, LV_PART_MAIN);
-    lv_obj_add_style(gLv_barLoading, &BarIndicStyle, LV_PART_INDICATOR);
+    lv_obj_add_style(gLv_barLoading, &gLv_barBoderStyle, LV_PART_MAIN);
+    lv_obj_add_style(gLv_barLoading, &gLv_barIndicStyle, LV_PART_INDICATOR);
     lv_obj_set_size(gLv_barLoading, 120, 10);
     lv_obj_align(gLv_barLoading, LV_ALIGN_CENTER, 0, 20);
     lv_bar_set_value(gLv_barLoading, 0, LV_ANIM_OFF);
@@ -57,19 +67,31 @@ void AppCtrlLoadingGuiInit(void)
     lv_scr_load(gLv_scrLoading);
 }
 
+void AppCtrlLoadingGuiRelease(void)
+{
+    if (gLv_scrLoading != NULL) {
+        lv_obj_del(gLv_scrLoading);
+        gLv_scrLoading = NULL;
+        gLv_barLoading = NULL;
+        gLv_labelLoading = NULL;
+        gLv_imgBooting = NULL;
+    }
+}
+
 void AppCtrlLoadingDisplay(int progress, const char *text, bool wait)
 {
     if (lv_scr_act() != gLv_scrLoading) {
         return;
     }
     int nowProgress = lv_bar_get_value(gLv_barLoading);
+    int animTime = 0;
     if (progress > nowProgress) {
-        int animTime = (progress - nowProgress) * 50;
+        animTime = (progress - nowProgress) * 50;
         lv_obj_set_style_anim_time(gLv_barLoading, animTime, LV_PART_MAIN);
         lv_bar_set_value(gLv_barLoading, progress, LV_ANIM_ON);
     }
     if (wait) {
-        ANIEND_WAIT;
+        ANIEND_WAIT(animTime + 100);
     }
     if (text != NULL) {
         lv_label_set_text(gLv_labelLoading, text);
@@ -78,13 +100,6 @@ void AppCtrlLoadingDisplay(int progress, const char *text, bool wait)
 
 void AppCtrlMenuGuiInit(void)
 {
-    static lv_style_t appNameStyle;
-
-    lv_style_init(&appNameStyle);
-    lv_style_set_text_opa(&appNameStyle, LV_OPA_COVER);
-    lv_style_set_text_color(&appNameStyle, lv_color_white());
-    lv_style_set_text_font(&appNameStyle, &lv_font_montserrat_24);
-
     g_appMenuPage1.appMenuScr = lv_obj_create(NULL);
     lv_obj_set_style_bg_color(g_appMenuPage1.appMenuScr, lv_color_black(), LV_STATE_DEFAULT);
     lv_obj_set_size(g_appMenuPage1.appMenuScr, 240, 240);
@@ -94,7 +109,7 @@ void AppCtrlMenuGuiInit(void)
     lv_obj_align(g_appMenuPage1.appImg, LV_ALIGN_CENTER, 0, -20);
 
     g_appMenuPage1.appName = lv_label_create(g_appMenuPage1.appMenuScr);
-    lv_obj_add_style(g_appMenuPage1.appName, &appNameStyle, LV_STATE_DEFAULT);
+    lv_obj_add_style(g_appMenuPage1.appName, &gLv_appNameStyle, LV_STATE_DEFAULT);
     lv_obj_align(g_appMenuPage1.appName, LV_ALIGN_BOTTOM_MID, 0, -20);
 
     g_appMenuPage2.appMenuScr = lv_obj_create(NULL);
@@ -106,7 +121,7 @@ void AppCtrlMenuGuiInit(void)
     lv_obj_align(g_appMenuPage2.appImg, LV_ALIGN_CENTER, 0, -20);
 
     g_appMenuPage2.appName = lv_label_create(g_appMenuPage2.appMenuScr);
-    lv_obj_add_style(g_appMenuPage2.appName, &appNameStyle, LV_STATE_DEFAULT);
+    lv_obj_add_style(g_appMenuPage2.appName, &gLv_appNameStyle, LV_STATE_DEFAULT);
     lv_obj_align(g_appMenuPage2.appName, LV_ALIGN_BOTTOM_MID, 0, -20);
 
     g_appMenuPage1.nextPage = &g_appMenuPage2;
@@ -114,14 +129,32 @@ void AppCtrlMenuGuiInit(void)
     g_nextMenuPage = &g_appMenuPage1;
 }
 
-void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim, bool delPre)
+void AppCtrlMenuGuiRelease(void)
+{
+    if (g_appMenuPage1.appMenuScr != NULL) {
+        lv_obj_del(g_appMenuPage1.appMenuScr);
+        g_appMenuPage1.appMenuScr = NULL;
+        g_appMenuPage1.appImg = NULL;
+        g_appMenuPage1.appName = NULL;
+        g_appMenuPage1.nextPage = NULL;
+    }
+    if (g_appMenuPage2.appMenuScr != NULL) {
+        lv_obj_del(g_appMenuPage2.appMenuScr);
+        g_appMenuPage2.appMenuScr = NULL;
+        g_appMenuPage2.appImg = NULL;
+        g_appMenuPage2.appName = NULL;
+        g_appMenuPage2.nextPage = NULL;
+    }
+}
+
+void AppCtrlMenuDisplay(const void *appImg, const char *appName, lv_scr_load_anim_t anim)
 {
     lv_img_set_src(g_nextMenuPage->appImg, appImg);
     lv_label_set_text(g_nextMenuPage->appName, appName);
 
-    lv_scr_load_anim(g_nextMenuPage->appMenuScr, anim, 500, 500, delPre);
+    lv_scr_load_anim(g_nextMenuPage->appMenuScr, anim, 500, 0, false);
 
-    ANIEND_WAIT;
+    ANIEND_WAIT(600);
 
     g_nextMenuPage = g_nextMenuPage->nextPage;
 }

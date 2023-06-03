@@ -3,10 +3,10 @@
 
 #include "Arduino.h"
 #include "driver/display.h"
+#include "driver/flash_fs.h"
 #include "driver/imu.h"
 #include "driver/network.h"
 #include "driver/sd_card.h"
-#include "driver/flash_fs.h"
 #include <TFT_eSPI.h>
 
 #define MJT_VERSION "2.1.15"
@@ -65,11 +65,12 @@ extern SemaphoreHandle_t lvgl_mutex; // lvgl 操作的锁
         }                                                                                                              \
     }
 
-#define ANIEND_WAIT                     \
-    do {                                \
-        lv_timer_handler();             \
-        delay(1);                       \
-    } while (lv_anim_count_running())
+#define ANIEND_WAIT(maxDelay)                                                                                          \
+    unsigned long stTime = millis();                                                                                   \
+    do {                                                                                                               \
+        lv_timer_handler();                                                                                            \
+        delay(1);                                                                                                      \
+    } while (lv_anim_count_running() && millis() - stTime <= maxDelay)
 
 void InitLvglTaskSetup(const char *name);
 void DeleteLvglTask(void);

@@ -38,8 +38,6 @@ void Display::init(uint8_t rotation, uint8_t backlight)
     tft->begin(); /* TFT init */
     tft->initDMA();
     tft->fillScreen(TFT_BLACK);
-    tft->writecommand(ST7789_DISPON); // Display on
-    // tft->fillScreen(BLACK);
 
     // 尝试读取屏幕数据作为屏幕检测的依旧
     // uint8_t ret = tft->readcommand8(0x01, TFT_MADCTL);

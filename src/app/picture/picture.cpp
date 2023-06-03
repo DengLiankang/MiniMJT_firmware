@@ -59,7 +59,10 @@ bool JpgOutput(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
         return 0;
 
     // This function will clip the image block rendering automatically at the TFT boundaries
-    tft->pushImage(x, y, w, h, bitmap);
+    tft->setAddrWindow(x, y, w, h);
+    tft->startWrite();
+    tft->pushColors(bitmap, w * h, true);
+    tft->endWrite();
 
     // This might work instead if you adapt the sketch to use the Adafruit_GFX library
     // tft.drawRGBBitmap(x, y, bitmap, w, h);
@@ -73,7 +76,9 @@ PictureApp::PictureApp()
     // 保存系统的tft设置参数 用于退出时恢复设置
     m_sysSwapStatus = tft->getSwapBytes();
     m_nowDispItem = 0;
-    m_lastRefreshMillis = 0;
+    m_nowDispDirection = true; // 正方向
+    m_lastRefreshMillis = millis() - g_pictureAppCfg.autoSwitchInterval;
+    m_nowFilePath = "";
 
     tft->setSwapBytes(true); // We need to swap the colour bytes (endianess)
     // The jpeg image can be scaled by a factor of 1, 2, 4, or 8
@@ -82,14 +87,14 @@ PictureApp::PictureApp()
     TJpgDec.setCallback(JpgOutput);
 
     GetAllSupportedFiles(IMAGE_PATH);
-    if (m_imgFiles.size() == 0) {
+    if (m_imgFiles.empty()) {
         PictureAppDisplayError();
     }
+    Serial.printf("[picture] find %d supported files\n", m_imgFiles.size());
 }
 
 PictureApp::~PictureApp()
 {
-    PictureAppGuiRelease();
     // 释放文件
     m_imgFiles.clear();
     // 恢复此前的驱动参数
@@ -103,9 +108,12 @@ String PictureApp::GetLastImgFilePath(void)
 
     if (m_nowDispItem == 0) {
         m_nowDispItem = m_imgFiles.size() - 1;
-        return m_imgFiles[m_nowDispItem];
+        m_nowFilePath = m_imgFiles[m_nowDispItem];
+    } else {
+        m_nowFilePath = m_imgFiles[--m_nowDispItem];
     }
-    return m_imgFiles[--m_nowDispItem];
+    m_nowDispDirection = false;
+    return m_nowFilePath;
 }
 
 String PictureApp::GetNextImgFilePath(void)
@@ -115,35 +123,51 @@ String PictureApp::GetNextImgFilePath(void)
 
     if (m_nowDispItem == m_imgFiles.size() - 1) {
         m_nowDispItem = 0;
-        return m_imgFiles[m_nowDispItem];
+        m_nowFilePath = m_imgFiles[m_nowDispItem];
+    } else {
+        m_nowFilePath = m_imgFiles[++m_nowDispItem];
     }
-    return m_imgFiles[++m_nowDispItem];
+    m_nowDispDirection = true;
+    return m_nowFilePath;
 }
 
 bool PictureApp::NeedAutoRefresh(void)
 {
     if (g_pictureAppCfg.autoSwitchInterval != 0 &&
         millis() - g_pictureApp->m_lastRefreshMillis >= g_pictureAppCfg.autoSwitchInterval) {
+        if (m_nowDispDirection) {
+            GetNextImgFilePath();
+        } else {
+            GetLastImgFilePath();
+        }
+        Serial.printf("[picture] need to auto fresh, interval: %d\n", g_pictureAppCfg.autoSwitchInterval);
         return true;
     }
     return false;
 }
 
-void PictureApp::DisplayImage(String filePath)
+void PictureApp::DisplayImage(void)
 {
-    if (filePath == "")
+    if (m_nowFilePath == "")
         return;
 
-    if (filePath.indexOf(".jpg") != -1 || filePath.indexOf(".JPG") != -1) {
+    Serial.printf("[picture] DisplayImage: %s\n", m_nowFilePath.c_str());
+    if (m_nowFilePath.indexOf(".jpg") != -1 || m_nowFilePath.indexOf(".JPG") != -1) {
+        unsigned long stTime = millis();
         // 直接解码jpg格式的图片
-        TJpgDec.drawSdJpg(0, 0, filePath);
-        delay(500);
-    } else if (filePath.indexOf(".bin") != -1 || filePath.indexOf(".BIN") != -1) {
+        TJpgDec.drawSdJpg(0, 0, m_nowFilePath);
+        delay(500 + stTime - millis());
+    } else if (m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
         // 使用LVGL的bin格式的图片
-        PictureAppDisplayImage(filePath.c_str(), LV_SCR_LOAD_ANIM_NONE);
+        PictureAppDisplayImage(m_nowFilePath.c_str(), LV_SCR_LOAD_ANIM_NONE);
     }
+    // if (m_nowFilePath.indexOf(".jpg") != -1 || m_nowFilePath.indexOf(".JPG") != -1 ||
+    //     m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
+    //     // 使用LVGL的bin格式的图片
+    //     PictureAppDisplayImage(m_nowFilePath.c_str(), LV_SCR_LOAD_ANIM_NONE);
+    // }
     // 重置更新的时间标记
-    g_pictureApp->m_lastRefreshMillis = millis();
+    m_lastRefreshMillis = millis();
 }
 
 int16_t PictureApp::GetAllSupportedFiles(const char *filePath)
@@ -156,13 +180,16 @@ int16_t PictureApp::GetAllSupportedFiles(const char *filePath)
         if (startIndex == -1)
             break;
         totalFileStr = totalFileStr.substring(startIndex + 6);
-        String fileName = totalFileStr.substring(0, totalFileStr.indexOf(" SIZE"));
+        String fileName = totalFileStr.substring(0, totalFileStr.indexOf(" | SIZE"));
         if (fileName.indexOf(".bin") == -1 && fileName.indexOf(".BIN") == -1 && fileName.indexOf(".jpg") == -1 &&
             fileName.indexOf(".JPG") == -1) {
             continue;
         }
-        m_imgFiles.push_back(String(filePath) + fileName);
+        m_imgFiles.push_back(String(filePath) + "/" + fileName);
         result++;
+    }
+    if (!m_imgFiles.empty()) {
+        m_nowFilePath = m_imgFiles[0];
     }
     return result;
 }
@@ -182,21 +209,24 @@ static void PictureAppMainPorcess(AppController *sys, const ImuAction *act_info)
         return;
 
     if (RETURN == act_info->active) {
+        if (NULL != g_pictureApp) {
+            delete g_pictureApp;
+            g_pictureApp = NULL;
+        }
         sys->AppExit();
         return;
     }
 
-    String filePath;
     bool refreshFlag = false;
     switch (act_info->active) {
         case TURN_RIGHT:
         case DOWN:
-            filePath = g_pictureApp->GetNextImgFilePath();
+            g_pictureApp->GetNextImgFilePath();
             refreshFlag = true;
             break;
         case TURN_LEFT:
         case UP:
-            filePath = g_pictureApp->GetLastImgFilePath();
+            g_pictureApp->GetLastImgFilePath();
             refreshFlag = true;
             break;
         default:
@@ -209,25 +239,18 @@ static void PictureAppMainPorcess(AppController *sys, const ImuAction *act_info)
     }
 
     if (refreshFlag) {
-        Serial.print(F("Display image: "));
-        Serial.println(filePath);
-        g_pictureApp->DisplayImage(filePath);
+        g_pictureApp->DisplayImage();
     }
 }
 
 static int PictureAppExit(void *param)
 {
+    PictureAppGuiRelease();
     WriteConfig(&g_pictureAppCfg);
-
-    if (NULL != g_pictureApp) {
-        delete g_pictureApp;
-        g_pictureApp = NULL;
-    }
     return 0;
 }
 
-static void PictureAppMessageHandle(const char *from, const char *to, APP_MESSAGE_TYPE type, void *data,
-                                    void *extData)
+static void PictureAppMessageHandle(const char *from, const char *to, APP_MESSAGE_TYPE type, void *data, void *extData)
 {
     switch (type) {
         case APP_MESSAGE_GET_PARAM: {
