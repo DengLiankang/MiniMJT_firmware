@@ -393,7 +393,6 @@ void AppController::MainProcess(void)
         } else if (m_imuActionData->active == ACTIVE_TYPE::GO_FORWORD) {
             if (m_appList[m_currentAppItem]->AppInit != NULL) {
                 (*(m_appList[m_currentAppItem]->AppInit))(this); // 执行APP初始化
-                ANIEND_WAIT(600);
                 AppCtrlMenuGuiRelease();
                 SetSystemState(MJT_SYS_STATE::STATE_APP_RUNNING);
             }

@@ -237,6 +237,7 @@ void WeatherAppGuiInit(struct WEATHER_STRUCT weatherInfo, struct tm timeInfo)
 
     // default weather scr
     lv_scr_load_anim(lv_weatherAppScr1, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
+    ANIEND_WAIT(600);
 }
 
 void WeatherAppGuiRelease(void)

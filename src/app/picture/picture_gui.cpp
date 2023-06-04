@@ -15,11 +15,17 @@ void PictureAppGuiInit()
 
     lv_obj_add_style(lv_pictureAppScr, &default_style, LV_STATE_DEFAULT);
     lv_scr_load_anim(lv_pictureAppScr, LV_SCR_LOAD_ANIM_FADE_IN, 500, 0, false);
+    ANIEND_WAIT(600);
 }
 
 void PictureAppDisplayError()
 {
-    lv_errorMsgLabel = lv_label_create(lv_pictureAppScr);
+    if (lv_pictureAppScr == NULL)
+        return;
+
+    if (lv_errorMsgLabel == NULL) {
+        lv_errorMsgLabel = lv_label_create(lv_pictureAppScr);
+    }
     lv_obj_set_style_text_color(lv_errorMsgLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_label_set_recolor(lv_errorMsgLabel, true);
     lv_obj_align(lv_errorMsgLabel, LV_ALIGN_CENTER, 0, 0);
@@ -28,6 +34,12 @@ void PictureAppDisplayError()
 
 void PictureAppDisplayImage(const String filePath, lv_scr_load_anim_t anim)
 {
+    if (lv_pictureAppScr == NULL)
+        return;
+
+    if (lv_displayImg == NULL) {
+        lv_displayImg = lv_img_create(lv_pictureAppScr);
+    }
     String lvFilePath = "S:" + filePath;
     lv_img_set_src(lv_displayImg, lvFilePath.c_str());
     lv_obj_align(lv_displayImg, LV_ALIGN_CENTER, 0, 0);
@@ -40,6 +52,13 @@ void PictureAppGuiRelease(void)
     if (NULL != lv_pictureAppScr) {
         lv_obj_del(lv_pictureAppScr); // 清空此前页面
         lv_pictureAppScr = NULL;
+    }
+}
+
+void PictureAppGuiChildRelease(void)
+{
+    if (NULL != lv_pictureAppScr) {
+        lv_obj_clean(lv_pictureAppScr); // 清空此前页面
         lv_displayImg = NULL;
         lv_errorMsgLabel = NULL;
     }

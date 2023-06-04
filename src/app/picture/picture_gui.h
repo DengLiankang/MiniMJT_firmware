@@ -11,6 +11,7 @@ void PictureAppGuiInit(void);
 void PictureAppDisplayError();
 void PictureAppDisplayImage(const String filePath, lv_scr_load_anim_t anim);
 void PictureAppGuiRelease(void);
+void PictureAppGuiChildRelease(void);
 
 LV_IMG_DECLARE(PictureAppLogo);
 

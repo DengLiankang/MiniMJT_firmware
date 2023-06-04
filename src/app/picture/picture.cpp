@@ -59,10 +59,7 @@ bool JpgOutput(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
         return 0;
 
     // This function will clip the image block rendering automatically at the TFT boundaries
-    tft->setAddrWindow(x, y, w, h);
-    tft->startWrite();
-    tft->pushColors(bitmap, w * h, true);
-    tft->endWrite();
+    tft->pushImage(x, y, w, h, bitmap);
 
     // This might work instead if you adapt the sketch to use the Adafruit_GFX library
     // tft.drawRGBBitmap(x, y, bitmap, w, h);
@@ -133,6 +130,9 @@ String PictureApp::GetNextImgFilePath(void)
 
 bool PictureApp::NeedAutoRefresh(void)
 {
+    if (m_nowFilePath == "")
+        return false;
+
     if (g_pictureAppCfg.autoSwitchInterval != 0 &&
         millis() - g_pictureApp->m_lastRefreshMillis >= g_pictureAppCfg.autoSwitchInterval) {
         if (m_nowDispDirection) {
@@ -159,7 +159,7 @@ void PictureApp::DisplayImage(void)
         delay(500 + stTime - millis());
     } else if (m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
         // 使用LVGL的bin格式的图片
-        PictureAppDisplayImage(m_nowFilePath.c_str(), LV_SCR_LOAD_ANIM_NONE);
+        PictureAppDisplayImage(m_nowFilePath, LV_SCR_LOAD_ANIM_NONE);
     }
     // if (m_nowFilePath.indexOf(".jpg") != -1 || m_nowFilePath.indexOf(".JPG") != -1 ||
     //     m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
@@ -209,6 +209,7 @@ static void PictureAppMainPorcess(AppController *sys, const ImuAction *act_info)
         return;
 
     if (RETURN == act_info->active) {
+        PictureAppGuiChildRelease();
         if (NULL != g_pictureApp) {
             delete g_pictureApp;
             g_pictureApp = NULL;
