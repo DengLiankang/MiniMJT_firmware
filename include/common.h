@@ -9,7 +9,7 @@
 #include "driver/sd_card.h"
 #include <TFT_eSPI.h>
 
-#define MJT_VERSION "2.1.15"
+#define MJT_VERSION "2.1.16"
 
 #define MJT_APP_CTRL "MJT_AppCtrl"
 

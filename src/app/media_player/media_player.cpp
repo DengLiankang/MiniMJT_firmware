@@ -298,5 +298,6 @@ APP_OBJ media_app = {MEDIA_PLAYER_APP_NAME,
                      media_player_init,
                      media_player_process,
                      media_player_background_task,
+                     NULL,
                      media_player_exit_callback,
                      media_player_message_handle};

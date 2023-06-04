@@ -246,6 +246,16 @@ static void PictureAppMainPorcess(AppController *sys, const ImuAction *act_info)
 
 static int PictureAppExit(void *param)
 {
+    PictureAppGuiChildRelease();
+    if (NULL != g_pictureApp) {
+        delete g_pictureApp;
+        g_pictureApp = NULL;
+    }
+    return 0;
+}
+
+static int PictureAppExitFinish(void *param)
+{
     PictureAppGuiRelease();
     WriteConfig(&g_pictureAppCfg);
     return 0;
@@ -277,5 +287,6 @@ static void PictureAppMessageHandle(const char *from, const char *to, APP_MESSAG
     }
 }
 
-APP_OBJ PICTURE_APP = {PICTURE_APP_NAME, &PictureAppLogo,        "", PictureAppInit, PictureAppMainPorcess, NULL,
-                       PictureAppExit,   PictureAppMessageHandle};
+APP_OBJ PICTURE_APP = {PICTURE_APP_NAME, &PictureAppLogo,       "",
+                       PictureAppInit,   PictureAppMainPorcess, NULL,
+                       PictureAppExit,   PictureAppExitFinish,  PictureAppMessageHandle};

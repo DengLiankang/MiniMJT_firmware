@@ -398,7 +398,11 @@ void AppController::MainProcess(void)
             }
         }
     } else if (GetSystemState() == MJT_SYS_STATE::STATE_APP_RUNNING) {
-        (*(m_appList[m_currentAppItem]->MainProcess))(this, m_imuActionData);
+        if (m_imuActionData->active == ACTIVE_TYPE::RETURN) {
+            AppExit();
+        }else {
+            (*(m_appList[m_currentAppItem]->MainProcess))(this, m_imuActionData);
+        }
     }
 
     m_imuActionData->active = ACTIVE_TYPE::UNKNOWN;
@@ -428,13 +432,18 @@ int AppController::GetAppIndexByName(const char *name)
 
 void AppController::AppExit(void)
 {
+    if (NULL != m_appList[m_currentAppItem]->AppExit) {
+        // 执行APP退出回调
+        (*(m_appList[m_currentAppItem]->AppExit))(NULL);
+    }
+
     AppCtrlMenuGuiInit();
     AppCtrlMenuDisplay(m_appList[m_currentAppItem]->appLogo, m_appList[m_currentAppItem]->appName,
                        LV_SCR_LOAD_ANIM_FADE_IN);
 
-    if (NULL != m_appList[m_currentAppItem]->AppExit) {
+    if (NULL != m_appList[m_currentAppItem]->AppExitFinish) {
         // 执行APP退出回调
-        (*(m_appList[m_currentAppItem]->AppExit))(NULL);
+        (*(m_appList[m_currentAppItem]->AppExitFinish))(NULL);
     }
 
     // 设置CPU主频

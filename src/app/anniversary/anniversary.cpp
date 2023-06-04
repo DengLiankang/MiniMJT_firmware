@@ -352,6 +352,12 @@ static void anniversary_message_handle(const char *from, const char *to, APP_MES
     }
 }
 
-APP_OBJ anniversary_app = {ANNIVERSARY_APP_NAME,      &app_anniversary,          "Author Hu Qianjiang\nVersion 0.0.1\n",
-                           anniversary_init,          anniversary_process,       anniversary_background_task,
-                           anniversary_exit_callback, anniversary_message_handle};
+APP_OBJ anniversary_app = {ANNIVERSARY_APP_NAME,
+                           &app_anniversary,
+                           "Author Hu Qianjiang\nVersion 0.0.1\n",
+                           anniversary_init,
+                           anniversary_process,
+                           anniversary_background_task,
+                           NULL,
+                           anniversary_exit_callback,
+                           anniversary_message_handle};

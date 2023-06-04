@@ -268,11 +268,6 @@ static void WeatherAppMainProcess(AppController *sys, const ImuAction *act_info)
     if (g_weatherApp == NULL)
         return;
 
-    if (RETURN == act_info->active) {
-        sys->AppExit();
-        return;
-    }
-
     if (TURN_RIGHT == act_info->active || TURN_LEFT == act_info->active) {
         uint8_t curPage = GetWeatherAppGuiPage();
         // 提前刷新
@@ -330,7 +325,7 @@ static void WeatherAppMainProcess(AppController *sys, const ImuAction *act_info)
     }
 }
 
-static int WeatherAppExit(void *param)
+static int WeatherAppExitFinish(void *param)
 {
     WeatherAppGuiRelease();
     WriteConfig(&g_weatherAppCfg);
@@ -376,4 +371,4 @@ static void WeatherAppMessageHandle(const char *from, const char *to, APP_MESSAG
 }
 
 APP_OBJ WEATHER_APP = {WEATHER_APP_NAME, &WeatherAppLogo,        "", WeatherAppInit, WeatherAppMainProcess, NULL,
-                       WeatherAppExit,   WeatherAppMessageHandle};
+                       NULL, WeatherAppExitFinish,  WeatherAppMessageHandle};

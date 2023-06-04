@@ -56,8 +56,11 @@ struct APP_OBJ {
     // APP的任务的入口指针（一般一分钟内会调用一次）
     void (*BackgroundTask)(AppController *sys, const ImuAction *act_info);
 
-    // 退出之前需要处理的回调函数 可为空
+    // 退出至app menu界面之后之前需要处理的回调函数 可为空
     int (*AppExit)(void *param);
+
+    // 退出至app menu界面之后需要处理的回调函数 可为空
+    int (*AppExitFinish)(void *param);
 
     // 消息处理机制
     void (*MessageHandle)(const char *from, const char *to, APP_MESSAGE_TYPE type, void *message, void *ext_info);
