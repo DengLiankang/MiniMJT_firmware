@@ -400,7 +400,7 @@ void AppController::MainProcess(void)
     } else if (GetSystemState() == MJT_SYS_STATE::STATE_APP_RUNNING) {
         if (m_imuActionData->active == ACTIVE_TYPE::RETURN) {
             AppExit();
-        }else {
+        } else {
             (*(m_appList[m_currentAppItem]->MainProcess))(this, m_imuActionData);
         }
     }

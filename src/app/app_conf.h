@@ -30,7 +30,7 @@
 #endif
 
 // 心跳APP
-#define APP_HEARTBEAT_USE 0
+#define APP_HEARTBEAT_USE 1
 #if APP_HEARTBEAT_USE
 #include "app/heartbeat/heartbeat.h"
 #endif

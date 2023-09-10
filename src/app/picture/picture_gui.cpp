@@ -43,8 +43,8 @@ void PictureAppDisplayImage(const String filePath, lv_scr_load_anim_t anim)
     String lvFilePath = "S:" + filePath;
     lv_img_set_src(lv_displayImg, lvFilePath.c_str());
     lv_obj_align(lv_displayImg, LV_ALIGN_CENTER, 0, 0);
-    lv_scr_load_anim(lv_pictureAppScr, anim, 500, 0, false);
-    ANIEND_WAIT(600);
+    lv_scr_load_anim(lv_pictureAppScr, anim, 0, 0, false);
+    ANIEND_WAIT(500);
 }
 
 void PictureAppGuiRelease(void)

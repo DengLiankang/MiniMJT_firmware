@@ -134,7 +134,7 @@ bool PictureApp::NeedAutoRefresh(void)
         return false;
 
     if (g_pictureAppCfg.autoSwitchInterval != 0 &&
-        millis() - g_pictureApp->m_lastRefreshMillis >= g_pictureAppCfg.autoSwitchInterval) {
+        millis() - m_lastRefreshMillis >= g_pictureAppCfg.autoSwitchInterval) {
         if (m_nowDispDirection) {
             GetNextImgFilePath();
         } else {
@@ -152,14 +152,17 @@ void PictureApp::DisplayImage(void)
         return;
 
     Serial.printf("[picture] DisplayImage: %s\n", m_nowFilePath.c_str());
+    unsigned long stTime = millis();
     if (m_nowFilePath.indexOf(".jpg") != -1 || m_nowFilePath.indexOf(".JPG") != -1) {
-        unsigned long stTime = millis();
         // 直接解码jpg格式的图片
         TJpgDec.drawSdJpg(0, 0, m_nowFilePath);
-        delay(500 + stTime - millis());
     } else if (m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
         // 使用LVGL的bin格式的图片
         PictureAppDisplayImage(m_nowFilePath, LV_SCR_LOAD_ANIM_NONE);
+    }
+    unsigned long enTime = millis();
+    if (enTime - stTime < 500) {
+        delay(500 + stTime - enTime);
     }
     // if (m_nowFilePath.indexOf(".jpg") != -1 || m_nowFilePath.indexOf(".JPG") != -1 ||
     //     m_nowFilePath.indexOf(".bin") != -1 || m_nowFilePath.indexOf(".BIN") != -1) {
@@ -207,16 +210,6 @@ static void PictureAppMainPorcess(AppController *sys, const ImuAction *act_info)
 {
     if (g_pictureApp == NULL)
         return;
-
-    if (RETURN == act_info->active) {
-        PictureAppGuiChildRelease();
-        if (NULL != g_pictureApp) {
-            delete g_pictureApp;
-            g_pictureApp = NULL;
-        }
-        sys->AppExit();
-        return;
-    }
 
     bool refreshFlag = false;
     switch (act_info->active) {
